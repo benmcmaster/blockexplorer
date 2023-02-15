@@ -1,5 +1,15 @@
 import { Alchemy, Network } from 'alchemy-sdk';
 import { useEffect, useState } from 'react';
+import BlockData from './BlockData';
+import Transactions from './Transactions';
+import Transaction from './Transaction';
+import Account from './Account';
+import { Container } from '@mui/material';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import './App.css';
 
@@ -20,17 +30,39 @@ const settings = {
 const alchemy = new Alchemy(settings);
 
 function App() {
-  const [blockNumber, setBlockNumber] = useState();
+  const [block, setBlock] = useState();
 
   useEffect(() => {
-    async function getBlockNumber() {
-      setBlockNumber(await alchemy.core.getBlockNumber());
+    async function getBlockWithTransactions() {
+      setBlock(await alchemy.core.getBlockWithTransactions());
     }
 
-    getBlockNumber();
-  });
+    getBlockWithTransactions();
 
-  return <div className="App">Block Number: {blockNumber}</div>;
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Container 
+        maxWidth="false"
+        sx={{
+          backgroundImage: "linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12)",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          padding: "50px",
+        }}>
+        <Routes>
+          <Route path="/" element={<BlockData block={block}/>} />
+          <Route path="/transactions" element={<Transactions block={block}/>} />
+          <Route path="/transactions/:hash" element={<Transaction/>} />
+          <Route path="/accounts/:hash" element={<Account/>} />
+        </Routes>
+      </Container>
+    </BrowserRouter>
+  );
 }
 
 export default App;
